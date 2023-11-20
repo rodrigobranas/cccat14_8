@@ -1,5 +1,5 @@
 import pgp from "pg-promise";
-import AccountDAO from "./AccountDAO";
+import AccountDAO from "./AccountRepository";
 import GetAccountAccountDAO from "./GetAccountAccountDAO";
 import SignupAccountDAO from "./SignupAccountDAO";
 import RideDAO from "./RideDAO";
@@ -18,4 +18,25 @@ export default class RideDAODatabase implements RideDAO {
 		await connection.$pool.end();
 		return ride;
 	}
+
+	async getActiveRideByPassengerId(passengerId: string): Promise<any> {
+		const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+		const [ride] = await connection.query("select * from cccat14.ride where passenger_id = $1 and status in ('requested', 'accepted', 'in_progress')", [passengerId]);
+		await connection.$pool.end();
+		return ride;
+	}
+
+	async list(): Promise<any> {
+		const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+		const rides = await connection.query("select * from cccat14.ride", []);
+		await connection.$pool.end();
+		return rides;
+	}
+
+	async update (ride: any) {
+		const connection = pgp()("postgres://postgres:123456@localhost:5432/app");
+		await connection.query("update cccat14.ride set status = $1, driver_id = $2 where ride_id = $3", [ride.status, ride.driverId, ride.ride_id]);
+		await connection.$pool.end();
+	}
+
 }

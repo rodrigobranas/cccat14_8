@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import Signup from "./Signup";
 import GetAccount from "./GetAccount";
-import AccountDAODatabase from "./AccountDAODatabase";
+import AccountDAODatabase from "./AccountRepositoryDatabase";
 import LoggerConsole from "./LoggerConsole";
 
 const app = express();

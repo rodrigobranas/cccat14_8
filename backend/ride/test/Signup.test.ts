@@ -1,5 +1,6 @@
-import AccountDAO from "../src/AccountDAO";
-import AccountDAODatabase from "../src/AccountDAODatabase";
+import Account from "../src/Account";
+import AccountDAO from "../src/AccountRepository";
+import AccountDAODatabase from "../src/AccountRepositoryDatabase";
 import GetAccount from "../src/GetAccount";
 import Logger from "../src/Logger";
 import LoggerConsole from "../src/LoggerConsole";
@@ -17,9 +18,7 @@ beforeEach(() => {
 	getAccount = new GetAccount(accountDAO);
 })
 
-test("Deve criar uma conta para o passageiro com stub", async function () {
-	const stubAccountDAOSave = sinon.stub(AccountDAODatabase.prototype, "save").resolves();
-	const stubAccountDAOGetByEmail = sinon.stub(AccountDAODatabase.prototype, "getByEmail").resolves(null);
+test("Deve criar uma conta para o passageiro", async function () {
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -29,7 +28,25 @@ test("Deve criar uma conta para o passageiro com stub", async function () {
 	};
 	const outputSignup = await signup.execute(inputSignup);
 	expect(outputSignup.accountId).toBeDefined();
-	const stubAccountDAOGetById = sinon.stub(AccountDAODatabase.prototype, "getById").resolves(inputSignup);
+	const outputGetAccount = await getAccount.execute(outputSignup.accountId);
+	// then
+	expect(outputGetAccount.name).toBe(inputSignup.name);
+	expect(outputGetAccount.email).toBe(inputSignup.email);
+});
+
+test("Deve criar uma conta para o passageiro com stub", async function () {
+	const stubAccountDAOSave = sinon.stub(AccountDAODatabase.prototype, "save").resolves();
+	const stubAccountDAOGetByEmail = sinon.stub(AccountDAODatabase.prototype, "getByEmail").resolves(undefined);
+	const inputSignup = {
+		name: "John Doe",
+		email: `john.doe${Math.random()}@gmail.com`,
+		cpf: "97456321558",
+		isPassenger: true,
+		password: "123456"
+	};
+	const outputSignup = await signup.execute(inputSignup);
+	expect(outputSignup.accountId).toBeDefined();
+	const stubAccountDAOGetById = sinon.stub(AccountDAODatabase.prototype, "getById").resolves(Account.create(inputSignup.name, inputSignup.email, inputSignup.cpf, "", inputSignup.isPassenger, false));
 	const outputGetAccount = await getAccount.execute(outputSignup.accountId);
 	// then
 	expect(outputGetAccount.name).toBe(inputSignup.name);
