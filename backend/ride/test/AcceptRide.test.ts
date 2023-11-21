@@ -1,13 +1,15 @@
-import AcceptRide from "../src/AcceptRide";
-import AccountDAO from "../src/AccountRepository";
-import AccountDAODatabase from "../src/AccountRepositoryDatabase";
-import GetAccount from "../src/GetAccount";
-import GetRide from "../src/GetRide";
-import Logger from "../src/Logger";
-import LoggerConsole from "../src/LoggerConsole";
-import RequestRide from "../src/RequestRide";
-import RideDAODatabase from "../src/RideDAODatabase";
-import Signup from "../src/Signup";
+import AcceptRide from "../src/application/usecase/AcceptRide";
+import AccountDAO from "../src/application/repository/AccountRepository";
+import AccountDAODatabase from "../src/infra/repository/AccountRepositoryDatabase";
+import DatabaseConnection from "../src/infra/database/DatabaseConnection";
+import GetAccount from "../src/application/usecase/GetAccount";
+import GetRide from "../src/application/usecase/GetRide";
+import Logger from "../src/application/logger/Logger";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideDAODatabase from "../src/infra/repository/RideRepositoryDatabase";
+import Signup from "../src/application/usecase/Signup";
 import sinon from "sinon";
 
 
@@ -16,9 +18,11 @@ let getAccount: GetAccount;
 let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
+let databaseConnection: DatabaseConnection;
 
 beforeEach(() => {
-	const accountDAO = new AccountDAODatabase();
+	databaseConnection = new PgPromiseAdapter();
+	const accountDAO = new AccountDAODatabase(databaseConnection);
 	const rideDAO = new RideDAODatabase();
 	const logger = new LoggerConsole();
 	signup = new Signup(accountDAO, logger);
@@ -61,7 +65,7 @@ test("Deve aceitar uma corrida", async function () {
 	await acceptRide.execute(inputAcceptRide);
 	const outputGetRide = await getRide.execute(outputRequestRide.rideId);
 	expect(outputGetRide.status).toBe("accepted");
-	expect(outputGetRide.driver_id).toBe(outputSignupDriver.accountId);
+	expect(outputGetRide.driverId).toBe(outputSignupDriver.accountId);
 });
 
 test("Não pode aceitar uma corrida se a conta não for de um motorista", async function () {
@@ -94,4 +98,8 @@ test("Não pode aceitar uma corrida se a conta não for de um motorista", async 
 		driverId: outputSignupDriver.accountId
 	}
 	await expect(() => acceptRide.execute(inputAcceptRide)).rejects.toThrow(new Error("Only drivers can accept a ride"))
+});
+
+afterEach(async () => {
+	await databaseConnection.close();
 });

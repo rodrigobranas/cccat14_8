@@ -1,4 +1,4 @@
-import Account from "./Account";
+import Account from "../../domain/Account";
 
 export default interface AccountRepository {
 	save (account: Account): Promise<void>;

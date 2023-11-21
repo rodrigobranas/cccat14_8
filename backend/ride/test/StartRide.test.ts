@@ -1,15 +1,17 @@
-import AcceptRide from "../src/AcceptRide";
-import AccountDAO from "../src/AccountRepository";
-import AccountDAODatabase from "../src/AccountRepositoryDatabase";
-import GetAccount from "../src/GetAccount";
-import GetRide from "../src/GetRide";
-import Logger from "../src/Logger";
-import LoggerConsole from "../src/LoggerConsole";
-import RequestRide from "../src/RequestRide";
-import RideDAODatabase from "../src/RideDAODatabase";
-import Signup from "../src/Signup";
+import AcceptRide from "../src/application/usecase/AcceptRide";
+import AccountDAO from "../src/application/repository/AccountRepository";
+import AccountDAODatabase from "../src/infra/repository/AccountRepositoryDatabase";
+import GetAccount from "../src/application/usecase/GetAccount";
+import GetRide from "../src/application/usecase/GetRide";
+import Logger from "../src/application/logger/Logger";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideDAODatabase from "../src/infra/repository/RideRepositoryDatabase";
+import Signup from "../src/application/usecase/Signup";
 import sinon from "sinon";
-import StartRide from "../src/StartRide";
+import StartRide from "../src/application/usecase/StartRide";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import DatabaseConnection from "../src/infra/database/DatabaseConnection";
 
 
 let signup: Signup;
@@ -18,9 +20,11 @@ let requestRide: RequestRide;
 let getRide: GetRide;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
+let databaseConnection: DatabaseConnection;
 
 beforeEach(() => {
-	const accountDAO = new AccountDAODatabase();
+	databaseConnection = new PgPromiseAdapter();
+	const accountDAO = new AccountDAODatabase(databaseConnection);
 	const rideDAO = new RideDAODatabase();
 	const logger = new LoggerConsole();
 	signup = new Signup(accountDAO, logger);
@@ -68,4 +72,8 @@ test("Deve iniciar uma corrida", async function () {
 	await startRide.execute(inputStartRide);
 	const outputGetRide = await getRide.execute(outputRequestRide.rideId);
 	expect(outputGetRide.status).toBe("in_progress");
+});
+
+afterEach(async () => {
+	await databaseConnection.close();
 });
