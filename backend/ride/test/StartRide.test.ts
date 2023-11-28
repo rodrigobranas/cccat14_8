@@ -12,6 +12,7 @@ import sinon from "sinon";
 import StartRide from "../src/application/usecase/StartRide";
 import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
 import DatabaseConnection from "../src/infra/database/DatabaseConnection";
+import PositionRepositoryDatabase from "../src/infra/repository/PositionRepositoryDatabase";
 
 
 let signup: Signup;
@@ -26,11 +27,12 @@ beforeEach(() => {
 	databaseConnection = new PgPromiseAdapter();
 	const accountDAO = new AccountDAODatabase(databaseConnection);
 	const rideDAO = new RideDAODatabase();
+	const positionRepository = new PositionRepositoryDatabase(databaseConnection);
 	const logger = new LoggerConsole();
 	signup = new Signup(accountDAO, logger);
 	getAccount = new GetAccount(accountDAO);
 	requestRide = new RequestRide(rideDAO, accountDAO, logger);
-	getRide = new GetRide(rideDAO, logger);
+	getRide = new GetRide(rideDAO, positionRepository, logger);
 	acceptRide = new AcceptRide(rideDAO, accountDAO);
 	startRide = new StartRide(rideDAO);
 })
