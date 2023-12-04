@@ -5,6 +5,7 @@ import LoggerConsole from "./infra/logger/LoggerConsole";
 import MainController from "./infra/controller/MainController";
 import PgPromiseAdapter from "./infra/database/PgPromiseAdapter";
 import Signup from "./application/usecase/Signup";
+import Registry from "./infra/di/Registry";
 
 // composition root ou entry point
 // criar o grafo de dependências utilizado no projeto
@@ -21,6 +22,10 @@ const logger = new LoggerConsole();
 const signup = new Signup(accountRepository, logger);
 const getAccount = new GetAccount(accountRepository);
 
-// interface adapter
-new MainController(httpServer, signup, getAccount);
+const registry = Registry.getInstance();
+registry.register("httpServer", httpServer);
+registry.register("signup", signup);
+registry.register("getAccount", getAccount);
+
+new MainController();
 httpServer.listen(3000);
