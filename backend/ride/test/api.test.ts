@@ -1,11 +1,31 @@
+import DatabaseConnection from "../src/infra/database/DatabaseConnection";
+import GetRide from "../src/application/usecase/GetRide";
+import LoggerConsole from "../src/infra/logger/LoggerConsole";
+import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
+import RequestRide from "../src/application/usecase/RequestRide";
+import RideRepositoryDatabase from "../src/infra/repository/RideRepositoryDatabase";
+import PositionRepositoryDatabase from "../src/infra/repository/PositionRepositoryDatabase";
+import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
+import AccountGateway from "../src/application/gateway/AccountGateway";
 import axios from "axios";
 
-axios.defaults.validateStatus = function () {
-	return true;
-}
 
-test("Deve criar uma conta para o passageiro pela API", async function () {
-	// given
+let requestRide: RequestRide;
+let getRide: GetRide;
+let databaseConnection: DatabaseConnection;
+let accountGateway: AccountGateway;
+
+beforeEach(() => {
+	databaseConnection = new PgPromiseAdapter();
+	const rideRepository = new RideRepositoryDatabase(databaseConnection);
+	const positionRepository = new PositionRepositoryDatabase(databaseConnection);
+	const logger = new LoggerConsole();
+	accountGateway = new AccountGatewayHttp();
+	requestRide = new RequestRide(rideRepository, accountGateway, logger);
+	getRide = new GetRide(rideRepository, positionRepository, logger);
+})
+
+test("Deve solicitar uma corrida", async function () {
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -13,69 +33,20 @@ test("Deve criar uma conta para o passageiro pela API", async function () {
 		isPassenger: true,
 		password: "123456"
 	};
-	// when
-	const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
-	const outputSignup = responseSignup.data;
-	const responseGetAccount = await axios.get(`http://localhost:3000/accounts/${outputSignup.accountId}`);
-	const outputGetAccount = responseGetAccount.data;
-	// then
-	expect(outputSignup.accountId).toBeDefined();
-	expect(outputGetAccount.name).toBe(inputSignup.name);
-	expect(outputGetAccount.email).toBe(inputSignup.email);
+	const outputSignup = await accountGateway.signup(inputSignup);
+	const inputRequestRide = {
+		passengerId: outputSignup.accountId,
+		fromLat: -27.584905257808835,
+		fromLong: -48.545022195325124,
+		toLat: -27.496887588317275,
+		toLong: -48.522234807851476
+	};
+	// const outputRequestRide = await requestRide.execute(inputRequestRide);
+	await axios.post("http://localhost:3000/request_ride_async", inputRequestRide);
+	// const outputGetRide = await getRide.execute(outputRequestRide.rideId);
+	// expect(outputGetRide.status).toBe("requested");
 });
 
-test("Não deve criar uma conta se o nome for inválido", async function () {
-	// given
-	const inputSignup = {
-		name: "John",
-		email: `john.doe${Math.random()}@gmail.com`,
-		cpf: "97456321558",
-		isPassenger: true,
-		password: "123456"
-	};
-	// when
-	const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
-	expect(responseSignup.status).toBe(422);
-	const outputSignup = responseSignup.data;
-	expect(outputSignup.message).toBe("Invalid name");
-});
-
-test("Deve criar uma conta para o motorista", async function () {
-	// given
-	const inputSignup = {
-		name: "John Doe",
-		email: `john.doe${Math.random()}@gmail.com`,
-		cpf: "97456321558",
-		carPlate: "AAA9999",
-		isPassenger: false,
-		isDriver: true,
-		password: "123456"
-	};
-	// when
-	const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
-	const outputSignup = responseSignup.data;
-	const responseGetAccount = await axios.get(`http://localhost:3000/accounts/${outputSignup.accountId}`);
-	const outputGetAccount = responseGetAccount.data;
-	// then
-	expect(outputSignup.accountId).toBeDefined();
-	expect(outputGetAccount.name).toBe(inputSignup.name);
-	expect(outputGetAccount.email).toBe(inputSignup.email);
-});
-
-test("Não deve criar uma conta para o motorista com a placa inválida", async function () {
-	// given
-	const inputSignup = {
-		name: "John Doe",
-		email: `john.doe${Math.random()}@gmail.com`,
-		cpf: "97456321558",
-		carPlate: "AAA999",
-		isPassenger: false,
-		isDriver: true,
-		password: "123456"
-	};
-	// when
-	const responseSignup = await axios.post("http://localhost:3000/signup", inputSignup);
-	expect(responseSignup.status).toBe(422);
-	const outputSignup = responseSignup.data;
-	expect(outputSignup.message).toBe("Invalid car plate");
+afterEach(async () => {
+	await databaseConnection.close();
 });
