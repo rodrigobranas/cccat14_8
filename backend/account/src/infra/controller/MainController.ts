@@ -23,13 +23,8 @@ export default class MainController {
 		});
 
 		this.httpServer?.register("get", "/accounts/:accountId", async (params: any, body: any) => {
-			try {
-				const output = await this.getAccount?.execute(params.accountId);
-				return output;
-			} catch (e: any) {
-				return undefined;
-			}
-
-		})
+			const output = await this.getAccount?.execute(params.accountId);
+			return output;
+		});
 	}
 }

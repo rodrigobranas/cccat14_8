@@ -54,7 +54,7 @@ test("Não deve poder solicitar uma corrida se a conta não existir", async func
 		toLat: -27.496887588317275,
 		toLong: -48.522234807851476
 	};
-	await expect(() => requestRide.execute(inputRequestRide)).rejects.toThrow(new Error("Account does not exist"));
+	await expect(() => requestRide.execute(inputRequestRide)).rejects.toThrow(new Error("Account not found"));
 });
 
 test("Não deve poder solicitar uma corrida se a conta não for de um passageiro", async function () {

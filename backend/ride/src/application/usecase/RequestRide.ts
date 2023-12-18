@@ -11,7 +11,7 @@ export default class RequestRide {
 	async execute (input: Input): Promise<Output> {
 		this.logger.log(`requestRide`);
 		const account = await this.accountGateway.getById(input.passengerId);
-		if (!account) throw new Error("Account does not exist");
+		if (!account) throw new Error("Account not found");
 		if (!account.isPassenger) throw new Error("Only passengers can request a ride");
 		const activeRide = await this.rideRepository.getActiveRideByPassengerId(input.passengerId);
 		if (activeRide) throw new Error("Passenger has an active ride");

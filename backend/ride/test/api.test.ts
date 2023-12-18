@@ -1,5 +1,4 @@
 import DatabaseConnection from "../src/infra/database/DatabaseConnection";
-import GetRide from "../src/application/usecase/GetRide";
 import LoggerConsole from "../src/infra/logger/LoggerConsole";
 import PgPromiseAdapter from "../src/infra/database/PgPromiseAdapter";
 import RequestRide from "../src/application/usecase/RequestRide";
@@ -8,10 +7,18 @@ import PositionRepositoryDatabase from "../src/infra/repository/PositionReposito
 import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 import AccountGateway from "../src/application/gateway/AccountGateway";
 import axios from "axios";
+import GetRideByPassengerId from "../src/application/usecase/GetRideByPassengerId";
 
+async function sleep (time: number) {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(time);
+		}, time);
+	})
+}
 
 let requestRide: RequestRide;
-let getRide: GetRide;
+let getRideByPassengerId: GetRideByPassengerId;
 let databaseConnection: DatabaseConnection;
 let accountGateway: AccountGateway;
 
@@ -22,10 +29,10 @@ beforeEach(() => {
 	const logger = new LoggerConsole();
 	accountGateway = new AccountGatewayHttp();
 	requestRide = new RequestRide(rideRepository, accountGateway, logger);
-	getRide = new GetRide(rideRepository, positionRepository, logger);
+	getRideByPassengerId = new GetRideByPassengerId(rideRepository, positionRepository, logger);
 })
 
-test.skip("Deve solicitar uma corrida", async function () {
+test("Deve solicitar uma corrida", async function () {
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,
@@ -41,10 +48,10 @@ test.skip("Deve solicitar uma corrida", async function () {
 		toLat: -27.496887588317275,
 		toLong: -48.522234807851476
 	};
-	// const outputRequestRide = await requestRide.execute(inputRequestRide);
 	await axios.post("http://localhost:3000/request_ride_async", inputRequestRide);
-	// const outputGetRide = await getRide.execute(outputRequestRide.rideId);
-	// expect(outputGetRide.status).toBe("requested");
+	await sleep(200);
+	const outputGetRide = await getRideByPassengerId.execute(outputSignup.accountId);
+	expect(outputGetRide.status).toBe("requested");
 });
 
 afterEach(async () => {
