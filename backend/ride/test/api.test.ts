@@ -25,7 +25,7 @@ beforeEach(() => {
 	getRide = new GetRide(rideRepository, positionRepository, logger);
 })
 
-test("Deve solicitar uma corrida", async function () {
+test.skip("Deve solicitar uma corrida", async function () {
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,

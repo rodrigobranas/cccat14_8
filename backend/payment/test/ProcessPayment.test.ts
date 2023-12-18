@@ -3,11 +3,18 @@ import crypto from "crypto";
 import TransactionRepositoryORM from "../src/infra/repository/TransactionRepositoryORM";
 import ProcessPayment from "../src/application/usecase/ProcessPayment";
 import GetTransactionByRideId from "../src/application/usecase/GetTransactionByRideId";
+import Queue from "../src/infra/queue/Queue";
 
 test("Deve processar um pagamento", async function () {
 	const connection = new PgPromiseAdapter();
 	const transactionRepository = new TransactionRepositoryORM(connection);
-	const processPayment = new ProcessPayment(transactionRepository);
+	const queue: Queue = {
+		async publish (queue: string, data: any): Promise<void> {
+		},
+		async consume (queue: string, callback: Function): Promise<void> {
+		}
+	}
+	const processPayment = new ProcessPayment(transactionRepository, queue);
 	const rideId = crypto.randomUUID();
 	const inputProcessPayment = {
 		rideId,

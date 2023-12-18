@@ -36,7 +36,12 @@ beforeEach(() => {
 	startRide = new StartRide(rideRepository);
 	updatePosition = new UpdatePosition(rideRepository, positionRepository);
 	const paymentGateway = new PaymentGatewayHttp();
-	const queue = new Queue();
+	const queue: Queue = {
+		async publish (queue: string, data: any): Promise<void> {
+		},
+		async consume (queue: string, callback: Function): Promise<void> {
+		}
+	}
 	finishRide = new FinishRide(rideRepository, paymentGateway, queue);
 })
 
