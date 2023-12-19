@@ -8,7 +8,7 @@ export default class ProcessPayment {
 	}
 
 	async execute (input: Input): Promise<void> {
-		console.log(input);
+		console.log("processPayment", input);
 		const transaction = Transaction.create(input.rideId, input.amount);
 		transaction.pay();
 		await this.transactionRepository.save(transaction);

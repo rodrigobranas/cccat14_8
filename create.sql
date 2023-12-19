@@ -43,3 +43,17 @@ create table cccat14.transaction (
 	date timestamp,
 	status text
 );
+
+create table cccat14.ride_projection (
+	ride_id uuid,
+	passenger_id uuid,
+	driver_id uuid,
+	fare numeric,
+	distance numeric,
+	status text,
+	passenger_name text null,
+	passenger_cpf text null,
+	driver_name text null,
+	driver_cpf text null,
+	driver_car_plate text null
+);

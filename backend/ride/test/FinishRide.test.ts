@@ -13,10 +13,12 @@ import AccountGateway from "../src/application/gateway/AccountGateway";
 import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 import PaymentGatewayHttp from "../src/infra/gateway/PaymentGatewayHttp";
 import Queue from "../src/infra/queue/Queue";
+import GetRideAPIComposition from "../src/application/usecase/GetRideAPIComposition";
+import GetRideQuery from "../src/application/query/GetRideQuery";
 
 
 let requestRide: RequestRide;
-let getRide: GetRide;
+let getRide: any;
 let acceptRide: AcceptRide;
 let startRide: StartRide;
 let databaseConnection: DatabaseConnection;
@@ -31,17 +33,19 @@ beforeEach(() => {
 	const logger = new LoggerConsole();
 	accountGateway = new AccountGatewayHttp();
 	requestRide = new RequestRide(rideRepository, accountGateway, logger);
-	getRide = new GetRide(rideRepository, positionRepository, logger);
+	// getRide = new GetRideAPIComposition(rideRepository, accountGateway);
+	getRide = new GetRideQuery(databaseConnection);
 	acceptRide = new AcceptRide(rideRepository, accountGateway);
 	startRide = new StartRide(rideRepository);
 	updatePosition = new UpdatePosition(rideRepository, positionRepository);
 	const paymentGateway = new PaymentGatewayHttp();
-	const queue: Queue = {
-		async publish (queue: string, data: any): Promise<void> {
-		},
-		async consume (queue: string, callback: Function): Promise<void> {
-		}
-	}
+	// const queue: Queue = {
+	// 	async publish (queue: string, data: any): Promise<void> {
+	// 	},
+	// 	async consume (queue: string, callback: Function): Promise<void> {
+	// 	}
+	// }
+	const queue = new Queue();
 	finishRide = new FinishRide(rideRepository, paymentGateway, queue);
 })
 
@@ -100,6 +104,9 @@ test("Deve iniciar uma corrida", async function () {
 	expect(outputGetRide.status).toBe("completed");
 	expect(outputGetRide.distance).toBe(10);
 	expect(outputGetRide.fare).toBe(21);
+	expect(outputGetRide.passengerName).toBe("John Doe");
+	expect(outputGetRide.passengerCpf).toBe("97456321558");
+	expect(outputGetRide.driverCarPlate).toBe("AAA9999");
 });
 
 afterEach(async () => {

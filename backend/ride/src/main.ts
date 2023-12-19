@@ -9,6 +9,8 @@ import QueueController from "./infra/queue/QueueController";
 import RequestRide from "./application/usecase/RequestRide";
 import RideRepositoryDatabase from "./infra/repository/RideRepositoryDatabase";
 import AccountGatewayHttp from "./infra/gateway/AccountGatewayHttp";
+import UpdateRideProjection from "./application/usecase/UpdateRideProjection";
+import UpdateRideProjectionAPIComposition from "./application/usecase/UpdateRideProjectionAPIComposition";
 
 // composition root ou entry point
 // criar o grafo de dependências utilizado no projeto
@@ -26,12 +28,14 @@ const logger = new LoggerConsole();
 // use case
 const sendReceipt = new SendReceipt();
 const requestRide = new RequestRide(rideRepository, accountGateway, logger);
+const updateRideProjection = new UpdateRideProjectionAPIComposition(databaseConnection, accountGateway);
 
 const registry = Registry.getInstance();
 registry.register("httpServer", httpServer);
 registry.register("queue", queue);
 registry.register("sendReceipt", sendReceipt);
 registry.register("requestRide", requestRide);
+registry.register("updateRideProjection", updateRideProjection);
 
 new MainController();
 new QueueController();

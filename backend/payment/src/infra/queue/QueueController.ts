@@ -9,7 +9,7 @@ export default class QueueController {
 	processPayment?: ProcessPayment;
 
 	constructor () {
-		this.queue?.consume("rideCompleted", async (input: any) => {
+		this.queue?.consume("rideCompleted", "rideCompleted.processPayment", async (input: any) => {
 			await this.processPayment?.execute(input);
 		});
 	}

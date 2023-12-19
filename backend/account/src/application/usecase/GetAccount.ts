@@ -1,5 +1,12 @@
 import AccountRepository from "../repository/AccountRepository";
 
+async function sleep (time: number) {
+	return new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(true);
+		}, time);
+	});
+}
 
 export default class GetAccount {
 
@@ -7,6 +14,7 @@ export default class GetAccount {
 	}
 	
 	async execute (accountId: string): Promise<Output> {
+		console.log("getAccount", accountId);
 		const account = await this.accountRepository.getById(accountId);
 		if (!account) throw new Error("Account not found");
 		return {

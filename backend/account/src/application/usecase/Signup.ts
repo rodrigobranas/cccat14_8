@@ -9,7 +9,6 @@ export default class Signup {
 
 	async execute (input: Input): Promise<Output> {
 		this.logger.log(`signup ${input.name}`);
-		console.log(input);
 		const existingAccount = await this.accountRepository.getByEmail(input.email);
 		if (existingAccount) throw new Error("Duplicated account");
 		const account = Account.create(input.name, input.email, input.cpf, input.carPlate || "", !!input.isPassenger, !!input.isDriver);

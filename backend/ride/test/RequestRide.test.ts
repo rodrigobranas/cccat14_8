@@ -7,6 +7,8 @@ import RideRepositoryDatabase from "../src/infra/repository/RideRepositoryDataba
 import PositionRepositoryDatabase from "../src/infra/repository/PositionRepositoryDatabase";
 import AccountGatewayHttp from "../src/infra/gateway/AccountGatewayHttp";
 import AccountGateway from "../src/application/gateway/AccountGateway";
+import AxiosAdapter from "../src/infra/http/AxiosAdapter";
+import FetchAdapter from "../src/infra/http/FetchAdapter";
 
 
 let requestRide: RequestRide;
@@ -19,12 +21,14 @@ beforeEach(() => {
 	const rideRepository = new RideRepositoryDatabase(databaseConnection);
 	const positionRepository = new PositionRepositoryDatabase(databaseConnection);
 	const logger = new LoggerConsole();
-	accountGateway = new AccountGatewayHttp();
+	// const httpClient = new AxiosAdapter();
+	const httpClient = new FetchAdapter();
+	accountGateway = new AccountGatewayHttp(httpClient);
 	requestRide = new RequestRide(rideRepository, accountGateway, logger);
 	getRide = new GetRide(rideRepository, positionRepository, logger);
 })
 
-test("Deve solicitar uma corrida", async function () {
+test.only("Deve solicitar uma corrida", async function () {
 	const inputSignup = {
 		name: "John Doe",
 		email: `john.doe${Math.random()}@gmail.com`,

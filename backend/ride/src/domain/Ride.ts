@@ -4,12 +4,15 @@ import Position from "./Position";
 import DistanceCalculator from "./DistanceCalculator";
 import Coord from "./Coord";
 import { FareCalculatorFactory } from "./FareCalculator";
+import RideCompletedEvent from "./event/RideCompletedEvent";
+import Aggregate from "./Aggregate";
 
 // Entity DDD
-export default class Ride {
+export default class Ride extends Aggregate {
 	status: RideStatus;
 
 	constructor (readonly rideId: string, readonly passengerId: string, private driverId: string, status: string, readonly date: Date, readonly fromLat: number, readonly fromLong: number, readonly toLat: number, readonly toLong: number, private fare: number = 0, private distance: number = 0, private lastPosition?: Coord) {
+		super();
 		this.status = RideStatusFactory.create(status, this);
 	}
 
@@ -34,6 +37,7 @@ export default class Ride {
 		const fareCalculator = FareCalculatorFactory.create(this.date);
 		this.fare = fareCalculator.calculate(this.distance);
 		this.status.finish();
+		this.notify(new RideCompletedEvent(this.rideId, this.fare));
 	}
 
 	updatePosition (position: Position) {
@@ -62,4 +66,5 @@ export default class Ride {
 	getLastPosition () {
 		return this.lastPosition;
 	}
+
 }
