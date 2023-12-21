@@ -9,9 +9,9 @@ test("Deve processar um pagamento", async function () {
 	const connection = new PgPromiseAdapter();
 	const transactionRepository = new TransactionRepositoryORM(connection);
 	const queue: Queue = {
-		async publish (queue: string, data: any): Promise<void> {
+		async publish (exchange: string, data: any): Promise<void> {
 		},
-		async consume (queue: string, callback: Function): Promise<void> {
+		async consume (exchange: string, queue: string, callback: Function): Promise<void> {
 		}
 	}
 	const processPayment = new ProcessPayment(transactionRepository, queue);
