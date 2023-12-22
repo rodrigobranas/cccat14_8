@@ -19,7 +19,7 @@ const accountRepository = new AccountRepositoryDatabase(databaseConnection);
 const logger = new LoggerConsole();
 
 // use case
-const signup = new Signup(accountRepository, logger);
+const signup = new Signup(accountRepository);
 const getAccount = new GetAccount(accountRepository);
 
 const registry = Registry.getInstance();

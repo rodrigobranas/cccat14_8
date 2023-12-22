@@ -6,6 +6,7 @@ import MainController from "./infra/controller/MainController";
 import PgPromiseAdapter from "./infra/database/PgPromiseAdapter";
 import Signup from "./application/usecase/Signup";
 import Registry from "./infra/di/Registry";
+import LoggerDecorator from "./application/decorator/LoggerDecorator";
 
 // composition root ou entry point
 // criar o grafo de dependências utilizado no projeto
@@ -19,7 +20,7 @@ const accountRepository = new AccountRepositoryDatabase(databaseConnection);
 const logger = new LoggerConsole();
 
 // use case
-const signup = new Signup(accountRepository, logger);
+const signup = new LoggerDecorator(new Signup(accountRepository));
 const getAccount = new GetAccount(accountRepository);
 
 const registry = Registry.getInstance();

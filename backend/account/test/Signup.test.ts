@@ -18,7 +18,7 @@ beforeEach(() => {
 	databaseConnection = new PgPromiseAdapter();
 	const accountRepository = new AccountRepositoryDatabase(databaseConnection);
 	const logger = new LoggerConsole();
-	signup = new Signup(accountRepository, logger);
+	signup = new Signup(accountRepository);
 	getAccount = new GetAccount(accountRepository);
 })
 
@@ -197,7 +197,7 @@ test("Deve criar uma conta para o passageiro com fake", async function () {
 			// console.log(message);
 		}
 	}
-	const signup = new Signup(accountRepository, logger);
+	const signup = new Signup(accountRepository);
 	const getAccount = new GetAccount(accountRepository);
 	const outputSignup = await signup.execute(inputSignup);
 	expect(outputSignup.accountId).toBeDefined();

@@ -1,4 +1,5 @@
 import HttpServer from "./HttpServer";
+import cors from "cors";
 import express from "express";
 
 // Framework and Driver and Library
@@ -8,6 +9,7 @@ export default class ExpressAdapter implements HttpServer {
 	constructor () {
 		this.app = express();
 		this.app.use(express.json());
+		this.app.use(cors());
 	}
 
 	register(method: string, url: string, callback: Function): void {

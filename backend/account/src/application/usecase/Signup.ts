@@ -1,14 +1,15 @@
 import Logger from "../logger/Logger";
 import Account from "../../domain/Account";
 import AccountRepository from "../repository/AccountRepository";
+import UseCase from "./UseCase";
 
-export default class Signup {
+export default class Signup implements UseCase {
+	name = "Signup";
 
-	constructor (private accountRepository: AccountRepository, private logger: Logger) {
+	constructor (private accountRepository: AccountRepository) {
 	}
 
 	async execute (input: Input): Promise<Output> {
-		this.logger.log(`signup ${input.name}`);
 		const existingAccount = await this.accountRepository.getByEmail(input.email);
 		if (existingAccount) throw new Error("Duplicated account");
 		const account = Account.create(input.name, input.email, input.cpf, input.carPlate || "", !!input.isPassenger, !!input.isDriver);
